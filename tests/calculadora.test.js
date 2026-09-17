@@ -9,3 +9,7 @@ describe('Testes de Operações Matemáticas', () => {
     expect(subtrai(5, 2)).toBe(3);
   });
 });
+
+test('Deve multiplicar 2 * 4 e retornar 8', () => {
+  expect(multiplica(2, 4)).toBe(8);
+});
