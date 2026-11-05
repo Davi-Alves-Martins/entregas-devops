@@ -48,20 +48,32 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
 
-  deploy-homologacao:
+   deploy-homologacao:
     needs: publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Deploy simulado em homologação
+      - name: Gerar .env a partir dos secrets
         env:
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
         run: |
-          printf "DB_USER=$DB_USER\nDB_PASSWORD=$DB_PASSWORD\nDB_NAME=$DB_NAME\n" > .env
-          docker compose up -d --build
-          sleep 15
-          curl --fail http://localhost:3000/
+          {
+            echo "DB_USER=$DB_USER"
+            echo "DB_PASSWORD=$DB_PASSWORD"
+            echo "DB_NAME=$DB_NAME"
+          } > .env
+
+      - name: Subir aplicação
+        run: docker compose up -d --build
+
+      - name: Verificar aplicação
+        run: curl --fail --retry 10 --retry-connrefused --retry-delay 3 http://localhost:3000/
+
+      - name: Diagnóstico
+        if: failure()
+        run: |
+          docker compose ps -a
           docker compose logs app
