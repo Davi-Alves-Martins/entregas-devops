@@ -1,0 +1,26 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versão estável para restaurar (ex: 1.0.0)"
+        required: true
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restaurar versão anterior
+        run: |
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}"
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker pull $IMAGE:${{ github.event.inputs.version }}
+          docker run -d --name app-rollback -p 3000:3000 $IMAGE:${{ github.event.inputs.version }}
+          sleep 8
+          curl --fail http://localhost:3000/
+          echo "Rollback para a versão ${{ github.event.inputs.version }} concluído"
