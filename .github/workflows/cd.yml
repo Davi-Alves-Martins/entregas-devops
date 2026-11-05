@@ -48,7 +48,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
 
-   deploy-homologacao:
+  deploy-homologacao:
     needs: publish
     runs-on: ubuntu-latest
     steps:
