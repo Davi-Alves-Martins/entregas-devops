@@ -70,7 +70,7 @@ jobs:
         run: docker compose up -d --build
 
       - name: Verificar aplicação
-        run: curl --fail --retry 10 --retry-connrefused --retry-delay 3 http://localhost:3000/
+        run: curl --fail --retry 15 --retry-all-errors --retry-delay 2 http://localhost:3000/
 
       - name: Diagnóstico
         if: failure()
